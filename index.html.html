@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#2563eb">
+<title>Kitchen Daily — M Checklist Audit</title>
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+/* ─── RESET & ROOT ─── */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --blue:#2563eb;--blue-dark:#1d4ed8;--blue-light:#eff6ff;--blue-mid:#dbeafe;
+  --teal:#0d9488;--teal-light:#f0fdfa;
+  --gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;--gray-300:#d1d5db;
+  --gray-400:#9ca3af;--gray-500:#6b7280;--gray-600:#4b5563;--gray-700:#374151;--gray-900:#111827;
+  --orange:#f97316;--orange-light:#fff7ed;--orange-mid:#fed7aa;
+  --red:#ef4444;--red-light:#fef2f2;
+  --green:#22c55e;--green-light:#f0fdf4;--green-dark:#16a34a;
+  --yellow:#eab308;--yellow-light:#fefce8;
+  --sidebar-w:220px;
+  --radius:10px;
+}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Sarabun',sans-serif;background:var(--gray-100);color:var(--gray-900);font-size:14px;}
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* ─── SIDEBAR ─── */
+.sidebar{width:var(--sidebar-w);background:#fff;border-right:1px solid var(--gray-200);display:flex;flex-direction:column;flex-shrink:0;height:100vh;}
+.sidebar-logo{padding:16px 14px 12px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:10px;}
+.logo-icon{width:34px;height:34px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(37,99,235,0.3);}
+.logo-icon i{color:#fff;font-size:0.9rem;}
+.logo-name{font-size:0.85rem;font-weight:700;color:var(--gray-900);}
+.logo-sub{font-size:0.6rem;color:var(--gray-400);margin-top:1px;}
+.sidebar-nav{padding:8px 8px;flex:1;overflow-y:auto;}
+.nav-section{font-size:0.58rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.1em;padding:6px 8px 3px;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;cursor:pointer;color:var(--gray-500);font-size:0.78rem;font-weight:500;margin-bottom:1px;transition:all .15s;user-select:none;}
+.nav-item:hover{background:var(--gray-100);color:var(--gray-900);}
+.nav-item.active{background:var(--blue-light);color:var(--blue);font-weight:600;}
+.nav-item i{width:14px;text-align:center;font-size:0.78rem;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--blue);color:#fff;font-size:0.58rem;font-weight:700;padding:1px 6px;border-radius:10px;}
+.nav-item.active .nav-badge{background:var(--blue-dark);}
+.sidebar-footer{padding:12px 14px;border-top:1px solid var(--gray-100);}
+.tagline{font-size:0.7rem;font-weight:600;color:var(--gray-700);}
+.tagline-th{font-size:0.6rem;color:var(--gray-400);margin-top:1px;}
+.lang-pill{margin-top:6px;display:inline-flex;align-items:center;gap:4px;background:var(--gray-100);border-radius:5px;padding:2px 7px;font-size:0.58rem;color:var(--gray-500);}
+
+/* ─── MAIN ─── */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+.topbar{background:#fff;border-bottom:1px solid var(--gray-200);padding:10px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.breadcrumb{font-size:0.68rem;color:var(--gray-400);}
+.breadcrumb .cur{color:var(--gray-700);font-weight:500;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.date-en{font-size:0.75rem;font-weight:600;color:var(--gray-900);}
+.date-th{font-size:0.6rem;color:var(--gray-400);}
+.avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#3b82f6);display:flex;align-items:center;justify-content:center;color:#fff;font-size:0.65rem;font-weight:700;cursor:pointer;}
+
+/* ─── CONTENT ─── */
+.content{flex:1;overflow-y:auto;padding:20px 24px 32px;}
+.content::-webkit-scrollbar{width:4px;}
+.content::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:10px;}
+
+/* ─── PAGE VIEWS ─── */
+.page{display:none;}
+.page.active{display:block;}
+
+/* ─── METRICS ─── */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.metric-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);padding:12px 14px;display:flex;align-items:flex-start;gap:10px;transition:box-shadow .15s;}
+.metric-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.metric-icon{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.metric-icon i{font-size:0.9rem;}
+.metric-val{font-size:1.4rem;font-weight:800;line-height:1;}
+.metric-lbl{font-size:0.68rem;color:var(--gray-600);margin-top:2px;font-weight:500;}
+.metric-lbl-th{font-size:0.58rem;color:var(--gray-400);margin-top:1px;}
+
+/* ─── BANNER ─── */
+.banner{background:linear-gradient(135deg,#1d4ed8,#2563eb,#3b82f6);border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;box-shadow:0 4px 14px rgba(37,99,235,.25);}
+.banner-title{font-size:0.92rem;font-weight:700;color:#fff;}
+.banner-sub{font-size:0.68rem;color:rgba(255,255,255,.72);margin-top:2px;}
+.btn{border-radius:7px;padding:7px 14px;font-size:0.7rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;border:none;transition:all .15s;text-decoration:none;}
+.btn-white{background:#fff;color:var(--blue);box-shadow:0 2px 6px rgba(0,0,0,.1);}
+.btn-white:hover{background:var(--blue-mid);}
+.btn-blue{background:var(--blue);color:#fff;}
+.btn-blue:hover{background:var(--blue-dark);}
+.btn-ghost{background:#fff;border:1px solid var(--gray-200);color:var(--gray-600);}
+.btn-ghost:hover{background:var(--gray-50);}
+.btn-red{background:var(--red);color:#fff;}
+.btn-red:hover{background:#dc2626;}
+.btn-green{background:var(--green-dark);color:#fff;}
+.btn-green:hover{background:#15803d;}
+
+/* ─── BOARD ─── */
+.board-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:10px;}
+.board-title{font-size:0.92rem;font-weight:700;color:var(--gray-900);}
+.board-title-th{font-size:0.65rem;color:var(--gray-400);margin-top:1px;}
+.board-actions{display:flex;gap:6px;}
+.filter-tabs{display:flex;gap:2px;margin-bottom:10px;background:var(--gray-100);border-radius:8px;padding:3px;width:fit-content;}
+.tab{padding:4px 12px;border-radius:6px;font-size:0.68rem;font-weight:600;cursor:pointer;color:var(--gray-500);transition:all .15s;user-select:none;display:flex;align-items:center;gap:4px;}
+.tab.active{background:#fff;color:var(--gray-900);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+.tab-count{font-size:0.58rem;font-weight:700;background:var(--gray-200);color:var(--gray-500);border-radius:8px;padding:1px 5px;}
+.tab.active .tab-count{background:var(--blue-mid);color:var(--blue);}
+
+/* ─── TASK CARDS ─── */
+.task-list{display:flex;flex-direction:column;gap:7px;}
+.task-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);padding:11px 13px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:all .15s;}
+.task-card:hover{box-shadow:0 3px 10px rgba(0,0,0,.07);border-color:var(--gray-300);transform:translateY(-1px);}
+.task-thumb{width:56px;height:56px;border-radius:7px;object-fit:cover;flex-shrink:0;border:1px solid var(--gray-200);background:var(--gray-100);}
+.task-thumb-placeholder{width:56px;height:56px;border-radius:7px;flex-shrink:0;border:1px solid var(--gray-200);background:var(--gray-100);display:flex;align-items:center;justify-content:center;color:var(--gray-300);font-size:1.2rem;}
+.task-body{flex:1;min-width:0;}
+.task-id{font-size:0.58rem;font-weight:700;color:var(--gray-400);font-family:monospace;margin-bottom:1px;}
+.task-title{font-size:0.8rem;font-weight:700;color:var(--gray-900);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.task-title-th{font-size:0.65rem;color:var(--gray-500);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.task-meta{display:flex;align-items:center;gap:5px;margin-top:6px;flex-wrap:wrap;}
+.badge{display:inline-flex;align-items:center;gap:3px;border-radius:5px;padding:2px 7px;font-size:0.58rem;font-weight:700;}
+.badge-verify{background:var(--orange-light);color:var(--orange);border:1px solid var(--orange-mid);}
+.badge-closed{background:var(--green-light);color:var(--green-dark);border:1px solid #bbf7d0;}
+.badge-overdue{background:var(--red-light);color:var(--red);border:1px solid #fecaca;}
+.chip{font-size:0.58rem;color:var(--gray-400);background:var(--gray-100);border-radius:4px;padding:2px 6px;display:flex;align-items:center;gap:2px;}
+.chip.item-ref{font-family:monospace;font-weight:700;color:var(--blue);background:var(--blue-light);}
+.task-arrow{color:var(--gray-300);font-size:0.72rem;flex-shrink:0;}
+
+/* ─── MODAL ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:640px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.modal-header{padding:18px 20px 14px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1;}
+.modal-title{font-size:0.95rem;font-weight:700;color:var(--gray-900);}
+.modal-close{width:28px;height:28px;border-radius:6px;border:none;background:var(--gray-100);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray-500);font-size:0.85rem;}
+.modal-close:hover{background:var(--gray-200);}
+.modal-body{padding:18px 20px;}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--gray-200);display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:#fff;}
+
+/* ─── FORM ─── */
+.form-group{margin-bottom:14px;}
+.form-label{font-size:0.72rem;font-weight:700;color:var(--gray-700);margin-bottom:5px;display:block;}
+.form-label-th{font-size:0.62rem;color:var(--gray-400);font-weight:400;margin-left:4px;}
+.form-input,.form-select,.form-textarea{width:100%;border:1px solid var(--gray-300);border-radius:7px;padding:8px 11px;font-size:0.78rem;color:var(--gray-900);outline:none;transition:border-color .15s;font-family:inherit;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.form-textarea{resize:vertical;min-height:70px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.upload-area{border:2px dashed var(--gray-300);border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--gray-50);}
+.upload-area:hover{border-color:var(--blue);background:var(--blue-light);}
+.upload-area i{font-size:1.5rem;color:var(--gray-400);margin-bottom:6px;display:block;}
+.upload-area p{font-size:0.72rem;color:var(--gray-500);}
+.upload-area p strong{color:var(--blue);}
+.preview-img{width:100%;max-height:160px;object-fit:cover;border-radius:7px;margin-top:8px;border:1px solid var(--gray-200);}
+.checklist-item{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:7px;border:1px solid var(--gray-200);margin-bottom:6px;cursor:pointer;transition:all .15s;}
+.checklist-item:hover{background:var(--gray-50);}
+.checklist-item.selected{background:var(--blue-light);border-color:var(--blue);}
+.checklist-item input[type=checkbox]{margin-top:2px;accent-color:var(--blue);flex-shrink:0;}
+.checklist-item-body{flex:1;}
+.checklist-item-num{font-size:0.6rem;font-weight:700;color:var(--blue);font-family:monospace;}
+.checklist-item-text{font-size:0.72rem;color:var(--gray-700);line-height:1.4;}
+.checklist-item-th{font-size:0.65rem;color:var(--gray-400);margin-top:1px;}
+.checklist-item-pts{font-size:0.6rem;font-weight:700;color:var(--orange);background:var(--orange-light);border-radius:4px;padding:1px 6px;white-space:nowrap;flex-shrink:0;}
+
+/* ─── SCORE PANEL ─── */
+.score-panel{background:linear-gradient(135deg,#1d4ed8,#2563eb);border-radius:var(--radius);padding:16px 20px;margin-bottom:16px;color:#fff;}
+.score-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.score-title{font-size:0.78rem;font-weight:700;opacity:.85;}
+.score-big{font-size:2.2rem;font-weight:800;line-height:1;}
+.score-denom{font-size:0.9rem;opacity:.6;}
+.score-bar-wrap{background:rgba(255,255,255,.2);border-radius:10px;height:8px;overflow:hidden;}
+.score-bar{height:100%;border-radius:10px;background:#fff;transition:width .5s ease;}
+.score-legend{display:flex;gap:12px;margin-top:8px;}
+.score-legend-item{font-size:0.62rem;opacity:.75;display:flex;align-items:center;gap:4px;}
+.score-legend-dot{width:8px;height:8px;border-radius:50%;}
+
+/* ─── CHECKLIST PAGE ─── */
+.checklist-section{margin-bottom:16px;}
+.section-header{font-size:0.72rem;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;padding:8px 12px;background:var(--blue-light);border-radius:7px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;}
+.section-pts{font-size:0.65rem;color:var(--blue);opacity:.7;}
+
+/* ─── REPORT PAGE ─── */
+.report-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;}
+.report-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.report-card-title{font-size:0.82rem;font-weight:700;color:var(--gray-900);}
+.report-table{width:100%;border-collapse:collapse;}
+.report-table th{background:var(--blue);color:#fff;font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:7px 10px;text-align:left;}
+.report-table td{padding:8px 10px;font-size:0.72rem;border-bottom:1px solid var(--gray-100);color:var(--gray-700);}
+.report-table tr:last-child td{border-bottom:none;}
+.report-table tr:nth-child(even) td{background:var(--gray-50);}
+
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--gray-900);color:#fff;padding:10px 16px;border-radius:8px;font-size:0.75rem;font-weight:500;z-index:200;transform:translateY(60px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{background:var(--green-dark);}
+.toast.error{background:var(--red);}
+
+/* ─── EMPTY STATE ─── */
+.empty{text-align:center;padding:32px 20px;color:var(--gray-400);}
+.empty i{font-size:2rem;margin-bottom:8px;display:block;}
+.empty p{font-size:0.78rem;}
+
+/* ─── SECTION DIVIDER ─── */
+.divider{height:1px;background:var(--gray-200);margin:16px 0;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon"><i class="fas fa-utensils"></i></div>
+    <div>
+      <div class="logo-name">Kitchen Daily</div>
+      <div class="logo-sub">M Checklist Audit</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Workspace</div>
+    <div class="nav-item active" onclick="showPage('today',this)">
+      <i class="fas fa-calendar-day"></i>
+      <span>Today <span style="font-size:.58rem;color:var(--gray-400);">วันนี้</span></span>
+      <span class="nav-badge" id="nav-badge">0</span>
+    </div>
+    <div class="nav-item" onclick="showPage('checklist',this)">
+      <i class="fas fa-clipboard-check"></i>
+      <span>Checklist <span style="font-size:.58rem;color:var(--gray-400);">ตรวจสอบ</span></span>
+    </div>
+    <div class="nav-item" onclick="showPage('report',this)">
+      <i class="fas fa-chart-bar"></i>
+      <span>Report <span style="font-size:.58rem;color:var(--gray-400);">รายงาน</span></span>
+    </div>
+    <div class="nav-item" onclick="showPage('history',this)">
+      <i class="fas fa-history"></i>
+      <span>History <span style="font-size:.58rem;color:var(--gray-400);">ประวัติ</span></span>
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="tagline">One day at a time</div>
+    <div class="tagline-th">ทีละวัน ทีละก้าว</div>
+    <div class="lang-pill"><i class="fas fa-globe"></i> EN &amp; TH</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="breadcrumb">Kitchen operations &rsaquo; <span class="cur" id="breadcrumb-cur">Daily follow-up</span></div>
+    <div class="topbar-right">
+      <div style="text-align:right;">
+        <div class="date-en" id="date-en"></div>
+        <div class="date-th" id="date-th"></div>
+      </div>
+      <div class="avatar">KD</div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- ══════════ PAGE: TODAY ══════════ -->
+    <div class="page active" id="page-today">
+      <div style="margin-bottom:14px;">
+        <div style="font-size:1.3rem;font-weight:800;color:var(--gray-900);">Your daily kitchen walk</div>
+        <div style="font-size:0.75rem;color:var(--gray-400);margin-top:2px;">การตรวจครัวประจำวันของคุณ</div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="metrics">
+        <div class="metric-card">
+          <div class="metric-icon" style="background:var(--orange-light);"><i class="fas fa-clipboard-list" style="color:var(--orange);"></i></div>
+          <div>
+            <div class="metric-val" style="color:var(--orange);" id="m-open">0</div>
+            <div class="metric-lbl">Open tasks</div>
+            <div class="metric-lbl-th">รายการที่ต้องติดตาม</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon" style="background:var(--green-light);"><i class="fas fa-check-circle" style="color:var(--green-dark);"></i></div>
+          <div>
+            <div class="metric-val" style="color:var(--green-dark);" id="m-closed">0</div>
+            <div class="metric-lbl">Completed</div>
+            <div class="metric-lbl-th">ยืนยันแล้ว</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon" style="background:var(--red-light);"><i class="fas fa-exclamation-circle" style="color:var(--red);"></i></div>
+          <div>
+            <div class="metric-val" style="color:var(--red);" id="m-overdue">0</div>
+            <div class="metric-lbl">Overdue</div>
+            <div class="metric-lbl-th">เกินกำหนด</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon" style="background:var(--blue-light);"><i class="fas fa-star" style="color:var(--blue);"></i></div>
+          <div>
+            <div class="metric-val" style="color:var(--blue);" id="m-score">95</div>
+            <div class="metric-lbl">Current score</div>
+            <div class="metric-lbl-th">คะแนนปัจจุบัน</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Banner -->
+      <div class="banner">
+        <div>
+          <div class="banner-title">Ready for today's walk? 🚶</div>
+          <div class="banner-sub">บันทึก Finding ใหม่ เพื่อติดตามความคืบหน้า</div>
+        </div>
+        <button class="btn btn-white" onclick="openNewFinding()"><i class="fas fa-plus"></i> New Finding</button>
+      </div>
+
+      <!-- Board -->
+      <div class="board-header">
+        <div>
+          <div class="board-title">Follow-up board</div>
+          <div class="board-title-th">ติดตามการแก้ไข</div>
+        </div>
+        <div class="board-actions">
+          <button class="btn btn-ghost" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
+          <button class="btn btn-blue" onclick="openNewFinding()"><i class="fas fa-plus"></i> New finding</button>
+        </div>
+      </div>
+
+      <div class="filter-tabs">
+        <div class="tab active" onclick="filterTasks('open',this)">Open <span class="tab-count" id="tab-open">0</span></div>
+        <div class="tab" onclick="filterTasks('all',this)">All <span class="tab-count" id="tab-all">0</span></div>
+        <div class="tab" onclick="filterTasks('closed',this)">Closed <span class="tab-count" id="tab-closed">0</span></div>
+        <div class="tab" onclick="filterTasks('overdue',this)">Overdue <span class="tab-count" id="tab-overdue">0</span></div>
+      </div>
+
+      <div class="task-list" id="task-list">
+        <div class="empty"><i class="fas fa-clipboard"></i><p>No findings yet.<br>ยังไม่มีรายการ — กด "New Finding" เพื่อเพิ่ม</p></div>
+      </div>
+    </div>
+
+    <!-- ══════════ PAGE: CHECKLIST ══════════ -->
+    <div class="page" id="page-checklist">
+      <div style="margin-bottom:14px;display:flex;align-items:flex-end;justify-content:space-between;">
+        <div>
+          <div style="font-size:1.3rem;font-weight:800;color:var(--gray-900);">M Checklist Audit</div>
+          <div style="font-size:0.75rem;color:var(--gray-400);margin-top:2px;">GFS Kitchen Assurance — 43 items / 95 pts</div>
+        </div>
+        <button class="btn btn-blue" onclick="showPage('report',document.querySelector('.nav-item:nth-child(3))'))"><i class="fas fa-chart-bar"></i> View Score</button>
+      </div>
+
+      <!-- Score mini panel -->
+      <div class="score-panel">
+        <div class="score-top">
+          <div>
+            <div class="score-title">Current Score / คะแนนปัจจุบัน</div>
+            <div style="margin-top:4px;"><span class="score-big" id="cl-score">95</span><span class="score-denom"> / 95 pts</span></div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.68rem;opacity:.75;">Deducted / หักแล้ว</div>
+            <div style="font-size:1.4rem;font-weight:800;" id="cl-deducted">0</div>
+          </div>
+        </div>
+        <div class="score-bar-wrap"><div class="score-bar" id="cl-bar" style="width:100%;"></div></div>
+        <div class="score-legend">
+          <div class="score-legend-item"><div class="score-legend-dot" style="background:#fff;"></div>Pass</div>
+          <div class="score-legend-item"><div class="score-legend-dot" style="background:rgba(255,255,255,.3);"></div>Deducted</div>
+        </div>
+      </div>
+
+      <div id="checklist-container"></div>
+    </div>
+
+    <!-- ══════════ PAGE: REPORT ══════════ -->
+    <div class="page" id="page-report">
+      <div style="margin-bottom:14px;display:flex;align-items:flex-end;justify-content:space-between;">
+        <div>
+          <div style="font-size:1.3rem;font-weight:800;color:var(--gray-900);">Audit Report</div>
+          <div style="font-size:0.75rem;color:var(--gray-400);margin-top:2px;">รายงานผลการตรวจสอบ</div>
+        </div>
+        <button class="btn btn-ghost" onclick="printReport()"><i class="fas fa-print"></i> Print / Export</button>
+      </div>
+
+      <!-- Score big -->
+      <div class="score-panel" style="margin-bottom:14px;">
+        <div class="score-top">
+          <div>
+            <div class="score-title">Final Score / คะแนนรวม</div>
+            <div style="margin-top:4px;"><span class="score-big" id="rpt-score">95</span><span class="score-denom"> / 95 pts</span></div>
+            <div style="font-size:0.68rem;opacity:.75;margin-top:4px;" id="rpt-rating">✅ Excellent</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:0.68rem;opacity:.75;">Items checked</div>
+            <div style="font-size:1.4rem;font-weight:800;" id="rpt-checked">0 / 43</div>
+          </div>
+        </div>
+        <div class="score-bar-wrap"><div class="score-bar" id="rpt-bar" style="width:100%;"></div></div>
+      </div>
+
+      <!-- Findings table -->
+      <div class="report-card">
+        <div class="report-card-header">
+          <div class="report-card-title">Findings Summary / สรุปข้อบกพร่อง</div>
+          <span class="badge badge-verify" id="rpt-finding-count">0 findings</span>
+        </div>
+        <table class="report-table">
+          <thead><tr><th>Photo / ภาพ</th><th>Finding / ข้อตรวจพบ</th><th>Item / ข้อ</th><th>Status / สถานะ</th></tr></thead>
+          <tbody id="rpt-findings-body"><tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:16px;">No findings recorded / ยังไม่มีรายการ</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- Deductions table -->
+      <div class="report-card">
+        <div class="report-card-header">
+          <div class="report-card-title">Checklist Deductions / คะแนนที่หัก</div>
+        </div>
+        <table class="report-table">
+          <thead><tr><th>Item / ข้อ</th><th>Criterion / เกณฑ์</th><th>Points / คะแนน</th></tr></thead>
+          <tbody id="rpt-deductions-body"><tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:16px;">No deductions / ไม่มีการหักคะแนน</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════ PAGE: HISTORY ══════════ -->
+    <div class="page" id="page-history">
+      <div style="margin-bottom:14px;">
+        <div style="font-size:1.3rem;font-weight:800;color:var(--gray-900);">History</div>
+        <div style="font-size:0.75rem;color:var(--gray-400);margin-top:2px;">ประวัติการตรวจสอบ</div>
+      </div>
+      <div class="empty"><i class="fas fa-history"></i><p>No history yet.<br>ยังไม่มีประวัติ — เริ่มตรวจสอบเพื่อบันทึกประวัติ</p></div>
+    </div>
+
+  </div><!-- end content -->
+</main>
+</div><!-- end app -->
+
+<!-- ══════════ MODAL: NEW FINDING ══════════ -->
+<div class="modal-overlay" id="modal-finding">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title"><i class="fas fa-plus-circle" style="color:var(--blue);margin-right:6px;"></i>New Finding / บันทึก Finding ใหม่</div>
+      <button class="modal-close" onclick="closeModal('modal-finding')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <!-- Photo upload -->
+      <div class="form-group">
+        <label class="form-label">Photo <span class="form-label-th">ภาพถ่าย</span></label>
+        <div class="upload-area" onclick="document.getElementById('photo-input').click()" id="upload-area">
+          <i class="fas fa-camera"></i>
+          <p><strong>Click to upload</strong> or drag & drop<br>คลิกเพื่ออัปโหลดรูปภาพ</p>
+        </div>
+        <input type="file" id="photo-input" accept="image/*" style="display:none;" onchange="handlePhoto(this)">
+        <img id="photo-preview" class="preview-img" style="display:none;">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Finding Title <span class="form-label-th">ชื่อข้อบกพร่อง</span></label>
+          <input class="form-input" id="f-title" placeholder="e.g. Sauce in reused jar">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Title (Thai) <span class="form-label-th">ชื่อภาษาไทย</span></label>
+          <input class="form-input" id="f-title-th" placeholder="เช่น ซอสในกระปุกที่มีฉลากอื่น">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Checklist Item <span class="form-label-th">ข้อ Checklist</span></label>
+        <select class="form-select" id="f-item">
+          <option value="">— Select item / เลือกข้อ —</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Status <span class="form-label-th">สถานะ</span></label>
+          <select class="form-select" id="f-status">
+            <option value="verify">To verify / รอตรวจยืนยัน</option>
+            <option value="closed">Closed / แก้ไขแล้ว</option>
+            <option value="overdue">Overdue / เกินกำหนด</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date <span class="form-label-th">กำหนดแก้ไข</span></label>
+          <input class="form-input" id="f-due" type="date">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Finding Detail <span class="form-label-th">รายละเอียด</span></label>
+        <textarea class="form-textarea" id="f-detail" placeholder="Describe what was observed / อธิบายสิ่งที่พบ"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Corrective Action <span class="form-label-th">วิธีแก้ไข</span></label>
+        <textarea class="form-textarea" id="f-action" placeholder="Describe corrective action / วิธีแก้ไข" style="min-height:55px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-finding')">Cancel</button>
+      <button class="btn btn-blue" onclick="saveFinding()"><i class="fas fa-save"></i> Save Finding</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: FINDING DETAIL -->
+<div class="modal-overlay" id="modal-detail">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="detail-title">Finding Detail</div>
+      <button class="modal-close" onclick="closeModal('modal-detail')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-red" id="detail-delete-btn"><i class="fas fa-trash"></i> Delete</button>
+      <button class="btn btn-green" id="detail-close-btn"><i class="fas fa-check"></i> Mark Closed</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-detail')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATA ───
+const CHECKLIST = [
+  {id:1,text:"Current year Foodborne Illness Notification procedures are on file and accessible.",th:"มีขั้นตอนแจ้งเหตุโรคอาหารเป็นพิษประจำปีและเข้าถึงได้",pts:1,section:"A"},
+  {id:2,text:"Proof of food safety training for food handlers is current and available for review.",th:"หลักฐานการฝึกอบรมความปลอดภัยอาหารของผู้จัดการอาหารเป็นปัจจุบัน",pts:1,section:"A"},
+  {id:3,text:"The appropriate food managers Food Safety Certified using an approved training and exam program.",th:"ผู้จัดการอาหารได้รับการรับรองความปลอดภัยอาหารจากโปรแกรมที่ได้รับอนุมัติ",pts:1,section:"A"},
+  {id:4,text:"A Pest Prevention program must be adopted, effective and a pest control log must be used.",th:"มีโปรแกรมป้องกันแมลงที่มีประสิทธิภาพและใช้บันทึกการควบคุมแมลง",pts:1,section:"A"},
+  {id:5,text:"Refrigerator and freezer temperature logs (HACCP Log A-3) are completed and on file for 180 days.",th:"บันทึกอุณหภูมิตู้เย็นและช่องแช่แข็ง (HACCP Log A-3) ครบถ้วนและเก็บไว้ 180 วัน",pts:5,section:"A"},
+  {id:6,text:"Temperature Logs (HACCP Log A-1) for cooking, holding and reheating food items are completed and on file for the past 180 days.",th:"บันทึกอุณหภูมิ (HACCP Log A-1) สำหรับการปรุง การเก็บ และการอุ่นอาหารครบถ้วน 180 วัน",pts:5,section:"A"},
+  {id:7,text:"Food cooling Logs (HACCP Log A-2) are completed and on file for the past 180 days.",th:"บันทึกการทำให้อาหารเย็น (HACCP Log A-2) ครบถ้วนและเก็บไว้ 180 วัน",pts:5,section:"A"},
+  {id:8,text:"Work station Cleaning Schedules must be completed and on file for 180 days.",th:"ตารางทำความสะอาดสถานีงานครบถ้วนและเก็บไว้ 180 วัน",pts:5,section:"A"},
+  {id:9,text:"Culinary managers are properly trained in food allergy awareness.",th:"ผู้จัดการครัวได้รับการฝึกอบรมด้านการตระหนักรู้เรื่องอาหารแพ้อย่างเหมาะสม",pts:1,section:"A"},
+  {id:10,text:"All food on display containing an allergen must have a disclosure reminder.",th:"อาหารที่แสดงทั้งหมดที่มีสารก่อภูมิแพ้ต้องมีการแจ้งเตือน",pts:1,section:"A"},
+  {id:11,text:"Kitchen exhaust-hood and ductwork system are professionally cleaned and maintained.",th:"ระบบดูดควันและท่อในครัวได้รับการทำความสะอาดและบำรุงรักษาโดยผู้เชี่ยวชาญ",pts:1,section:"B"},
+  {id:12,text:"Ice Machines are clean and in good condition.",th:"เครื่องทำน้ำแข็งสะอาดและอยู่ในสภาพดี",pts:1,section:"B"},
+  {id:13,text:"Floors, walls and ceilings are clean and free from excessive dust, debris and standing water.",th:"พื้น ผนัง และเพดานสะอาด ไม่มีฝุ่น สิ่งสกปรก หรือน้ำขังมากเกินไป",pts:1,section:"B"},
+  {id:14,text:"Floors, walls and ceilings are easily cleanable and in good condition/repair.",th:"พื้น ผนัง และเพดานทำความสะอาดได้ง่ายและอยู่ในสภาพดีหรือได้รับการซ่อมแซมเหมาะสม",pts:1,section:"B"},
+  {id:15,text:"Ventilation adequate; vents, fan guards and filters clean.",th:"การระบายอากาศเพียงพอ ช่องระบาย ฝาครอบพัดลม และตัวกรองสะอาด",pts:1,section:"B"},
+  {id:16,text:"Back dock and entry way are insect and rodent proof.",th:"ท่าเรือด้านหลังและทางเข้าป้องกันแมลงและสัตว์ฟันแทะ",pts:1,section:"B"},
+  {id:17,text:"Dumpster areas are kept clean and organized.",th:"พื้นที่ถังขยะสะอาดและเป็นระเบียบ",pts:1,section:"B"},
+  {id:18,text:"Associate Cafeteria/Canteen/Break room is clean and well maintained.",th:"โรงอาหาร/ห้องพักพนักงานสะอาดและได้รับการดูแลอย่างดี",pts:3,section:"B"},
+  {id:19,text:"Hand washing facilities in food production areas used only for that purpose.",th:"อ่างล้างมือในพื้นที่ผลิตอาหารใช้เพื่อวัตถุประสงค์นั้นเท่านั้น",pts:1,section:"B"},
+  {id:20,text:"Dishwashing machines/compartment sinks are properly maintained and operated.",th:"เครื่องล้างจาน/อ่างล้างแบบช่องได้รับการบำรุงรักษาและใช้งานอย่างถูกต้อง",pts:3,section:"B"},
+  {id:21,text:"Chemical supplies are properly stored and labeled.",th:"สารเคมีถูกจัดเก็บและติดฉลากอย่างถูกต้อง",pts:1,section:"B"},
+  {id:22,text:"Facilities for manual washing and sanitizing of equipment/utensils properly maintained.",th:"สิ่งอำนวยความสะดวกสำหรับการล้างและฆ่าเชื้ออุปกรณ์ด้วยมือได้รับการดูแลอย่างถูกต้อง",pts:1,section:"B"},
+  {id:23,text:"Food and food contact packaging must be property stored at a minimum of 15 centimeters (6\") off the floor.",th:"อาหารและบรรจุภัณฑ์ที่สัมผัสอาหารจัดเก็บให้สูงจากพื้นอย่างน้อย 15 เซนติเมตร",pts:1,section:"C"},
+  {id:24,text:"Ensure proper implementations of the FIFO principles in food-production and storage areas.",th:"ใช้หลักการ FIFO อย่างถูกต้องในพื้นที่ผลิตและจัดเก็บอาหาร",pts:1,section:"C"},
+  {id:25,text:"Refrigerators and freezers maintain required temperatures.",th:"ตู้เย็นและช่องแช่แข็งรักษาอุณหภูมิที่กำหนด",pts:5,section:"C"},
+  {id:26,text:"Cold, time/temp control for safety foods maintained at 5°C (41°F) or below in all cold holding devices.",th:"อาหารควบคุมเวลา/อุณหภูมิเย็นรักษาที่ 5°C (41°F) หรือต่ำกว่าในอุปกรณ์เก็บเย็นทั้งหมด",pts:5,section:"C"},
+  {id:27,text:"Hot, time/temp control for safety foods maintained at 57°C (135°F) or above in all hot holding devices.",th:"อาหารควบคุมเวลา/อุณหภูมิร้อนรักษาที่ 57°C (135°F) หรือสูงกว่าในอุปกรณ์เก็บร้อนทั้งหมด",pts:5,section:"C"},
+  {id:28,text:"Food Handlers know the required cooking temperatures or know local legal required cooking temperatures if more stringent.",th:"ผู้จัดการอาหารทราบอุณหภูมิการปรุงที่กำหนดหรืออุณหภูมิตามกฎหมายท้องถิ่นหากเข้มงวดกว่า",pts:1,section:"C"},
+  {id:29,text:"Hotels must purchase ground/minced beef for hamburgers from vendors that comply with microbiological standards.",th:"โรงแรมต้องซื้อเนื้อบดสำหรับแฮมเบอร์เกอร์จากผู้จำหน่ายที่ปฏิบัติตามมาตรฐานจุลชีววิทยา",pts:3,section:"C"},
+  {id:30,text:"Food must come from commercial suppliers and food/packaging must be in sound condition when received.",th:"อาหารต้องมาจากผู้จำหน่ายเชิงพาณิชย์และอาหาร/บรรจุภัณฑ์ต้องอยู่ในสภาพดีเมื่อรับ",pts:1,section:"C"},
+  {id:31,text:"Date marking is applied at time of preparation to time/temp control for safety foods.",th:"การทำเครื่องหมายวันที่ใช้ในเวลาเตรียมอาหารสำหรับอาหารควบคุมเวลา/อุณหภูมิ",pts:1,section:"C"},
+  {id:32,text:"Food and food contact surfaces protected from potential microbiological, physical and chemical hazards.",th:"อาหารและพื้นผิวสัมผัสอาหารได้รับการป้องกันจากอันตรายทางจุลชีววิทยา กายภาพ และเคมี",pts:3,section:"C"},
+  {id:33,text:"Time/temp control for safety foods properly thawed.",th:"อาหารควบคุมเวลา/อุณหภูมิละลายน้ำแข็งอย่างถูกต้อง",pts:1,section:"C"},
+  {id:34,text:"In-use utensils (including ice scoops) properly handled and stored in a sanitary manner.",th:"อุปกรณ์ที่ใช้งาน (รวมถึงที่ตักน้ำแข็ง) จัดการและจัดเก็บอย่างถูกสุขลักษณะ",pts:1,section:"C"},
+  {id:35,text:"Food contact surfaces of equipment and utensils durable, non-toxic, easily cleanable and in good condition.",th:"พื้นผิวสัมผัสอาหารของอุปกรณ์มีความทนทาน ไม่เป็นพิษ ทำความสะอาดง่าย และอยู่ในสภาพดี",pts:1,section:"C"},
+  {id:36,text:"Equipment and utensils properly cleaned, such as sides of sinks, door handles and gaskets, sliding door tracks, shelves, racks, etc.",th:"อุปกรณ์และเครื่องมือได้รับการทำความสะอาดอย่างถูกต้อง เช่น ด้านข้างอ่าง มือจับประตู ฯลฯ",pts:1,section:"D"},
+  {id:37,text:"Chemical sanitizer solutions at proper concentration and temperature per label instructions.",th:"สารละลายฆ่าเชื้อเคมีมีความเข้มข้นและอุณหภูมิที่เหมาะสมตามคำแนะนำบนฉลาก",pts:3,section:"D"},
+  {id:38,text:"Sanitizer test kits are readily available for use for all types of sanitizer products.",th:"ชุดทดสอบสารฆ่าเชื้อพร้อมใช้งานสำหรับผลิตภัณฑ์ฆ่าเชื้อทุกประเภท",pts:3,section:"D"},
+  {id:39,text:"Hands washed frequently and appropriately after potential contamination.",th:"ล้างมือบ่อยครั้งและเหมาะสมหลังจากการปนเปื้อนที่อาจเกิดขึ้น",pts:5,section:"D"},
+  {id:40,text:"No bare hand contact observed with ready-to-eat food except with a GFS Variance.",th:"ไม่พบการสัมผัสอาหารพร้อมรับประทานด้วยมือเปล่า ยกเว้นมี GFS Variance",pts:3,section:"D"},
+  {id:41,text:"Person displaying contagious symptoms are restricted/excluded from working around exposed food, utensils or equipment.",th:"บุคคลที่แสดงอาการติดต่อถูกจำกัด/ห้ามทำงานใกล้อาหาร อุปกรณ์ที่เปิดเผย",pts:3,section:"D"},
+  {id:42,text:"Eating, drinking and tobacco use restricted to non-food areas.",th:"การรับประทานอาหาร ดื่ม และใช้ยาสูบจำกัดในพื้นที่ที่ไม่ใช่อาหาร",pts:1,section:"D"},
+  {id:43,text:"Written procedures must be on hand that outlines clean-up/disinfection procedures and tools used for vomitus events.",th:"ต้องมีขั้นตอนเป็นลายลักษณ์อักษรสำหรับการทำความสะอาด/ฆ่าเชื้อในกรณีอาเจียน",pts:1,section:"D"},
+];
+
+const SECTIONS = {
+  A:{name:"Documentation & Training",th:"เอกสารและการฝึกอบรม"},
+  B:{name:"Facility & Equipment",th:"สิ่งอำนวยความสะดวกและอุปกรณ์"},
+  C:{name:"Food Storage & Handling",th:"การจัดเก็บและจัดการอาหาร"},
+  D:{name:"Sanitation & Personal Hygiene",th:"สุขาภิบาลและสุขอนามัยส่วนบุคคล"},
+};
+
+let findings = JSON.parse(localStorage.getItem('kd-findings')||'[]');
+let checklistState = JSON.parse(localStorage.getItem('kd-checklist')||'{}');
+let currentFilter = 'open';
+let currentPhotoData = null;
+
+// ─── INIT ───
+function init(){
+  setDate();
+  buildChecklist();
+  renderTasks();
+  updateMetrics();
+  populateItemSelect();
+}
+
+function setDate(){
+  const d = new Date();
+  document.getElementById('date-en').textContent = d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('date-th').textContent = d.toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'});
+}
+
+// ─── NAVIGATION ───
+function showPage(id, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const labels={today:'Daily follow-up',checklist:'M Checklist',report:'Audit Report',history:'History'};
+  document.getElementById('breadcrumb-cur').textContent = labels[id]||id;
+  if(id==='report') updateReport();
+  if(id==='checklist') updateChecklistScore();
+}
+
+// ─── CHECKLIST ───
+function buildChecklist(){
+  const container = document.getElementById('checklist-container');
+  const grouped = {};
+  CHECKLIST.forEach(item=>{
+    if(!grouped[item.section]) grouped[item.section]=[];
+    grouped[item.section].push(item);
+  });
+  let html='';
+  Object.keys(grouped).forEach(sec=>{
+    const totalPts = grouped[sec].reduce((a,b)=>a+b.pts,0);
+    html+=`<div class="checklist-section">
+      <div class="section-header">
+        <span>Section ${sec}: ${SECTIONS[sec].name} / ${SECTIONS[sec].th}</span>
+        <span class="section-pts">${totalPts} pts</span>
+      </div>`;
+    grouped[sec].forEach(item=>{
+      const checked = checklistState[item.id]===true;
+      html+=`<div class="checklist-item ${checked?'selected':''}" id="ci-${item.id}" onclick="toggleChecklist(${item.id})">
+        <input type="checkbox" ${checked?'checked':''} onclick="event.stopPropagation();toggleChecklist(${item.id})">
+        <div class="checklist-item-body">
+          <div class="checklist-item-num">Item #${item.id}</div>
+          <div class="checklist-item-text">${item.text}</div>
+          <div class="checklist-item-th">${item.th}</div>
+        </div>
+        <span class="checklist-item-pts">${item.pts} pt${item.pts>1?'s':''}</span>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  container.innerHTML=html;
+  updateChecklistScore();
+}
+
+function toggleChecklist(id){
+  checklistState[id] = !checklistState[id];
+  localStorage.setItem('kd-checklist',JSON.stringify(checklistState));
+  const el = document.getElementById('ci-'+id);
+  const cb = el.querySelector('input');
+  if(checklistState[id]){el.classList.add('selected');cb.checked=true;}
+  else{el.classList.remove('selected');cb.checked=false;}
+  updateChecklistScore();
+  updateMetrics();
+}
+
+function getScore(){
+  let deducted=0;
+  CHECKLIST.forEach(item=>{
+    if(checklistState[item.id]===true) deducted+=item.pts;
+  });
+  return {score:95-deducted,deducted,checked:Object.values(checklistState).filter(Boolean).length};
+}
+
+function updateChecklistScore(){
+  const {score,deducted}=getScore();
+  document.getElementById('cl-score').textContent=score;
+  document.getElementById('cl-deducted').textContent=deducted;
+  document.getElementById('cl-bar').style.width=(score/95*100)+'%';
+}
+
+// ─── FINDINGS ───
+function populateItemSelect(){
+  const sel = document.getElementById('f-item');
+  CHECKLIST.forEach(item=>{
+    const opt = document.createElement('option');
+    opt.value=item.id;
+    opt.textContent=`#${item.id} — ${item.text.substring(0,55)}... (${item.pts}pt)`;
+    sel.appendChild(opt);
+  });
+}
+
+function openNewFinding(){
+  document.getElementById('f-title').value='';
+  document.getElementById('f-title-th').value='';
+  document.getElementById('f-item').value='';
+  document.getElementById('f-status').value='verify';
+  document.getElementById('f-due').value='';
+  document.getElementById('f-detail').value='';
+  document.getElementById('f-action').value='';
+  document.getElementById('photo-preview').style.display='none';
+  document.getElementById('upload-area').style.display='block';
+  currentPhotoData=null;
+  openModal('modal-finding');
+}
+
+function handlePhoto(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    currentPhotoData=e.target.result;
+    document.getElementById('photo-preview').src=currentPhotoData;
+    document.getElementById('photo-preview').style.display='block';
+    document.getElementById('upload-area').style.display='none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveFinding(){
+  const title=document.getElementById('f-title').value.trim();
+  if(!title){showToast('Please enter a finding title / กรุณาใส่ชื่อข้อบกพร่อง','error');return;}
+  const itemId=parseInt(document.getElementById('f-item').value)||null;
+  const finding={
+    id:'K-'+(String(findings.length+1).padStart(3,'0')),
+    title,
+    titleTh:document.getElementById('f-title-th').value.trim(),
+    itemId,
+    status:document.getElementById('f-status').value,
+    due:document.getElementById('f-due').value,
+    detail:document.getElementById('f-detail').value.trim(),
+    action:document.getElementById('f-action').value.trim(),
+    photo:currentPhotoData,
+    createdAt:new Date().toISOString(),
+  };
+  findings.push(finding);
+  localStorage.setItem('kd-findings',JSON.stringify(findings));
+  closeModal('modal-finding');
+  renderTasks();
+  updateMetrics();
+  showToast('Finding saved! / บันทึกสำเร็จ ✓','success');
+}
+
+function renderTasks(){
+  const list=document.getElementById('task-list');
+  let filtered=findings;
+  if(currentFilter==='open') filtered=findings.filter(f=>f.status==='verify');
+  else if(currentFilter==='closed') filtered=findings.filter(f=>f.status==='closed');
+  else if(currentFilter==='overdue') filtered=findings.filter(f=>f.status==='overdue');
+
+  if(filtered.length===0){
+    list.innerHTML='<div class="empty"><i class="fas fa-clipboard"></i><p>No findings in this category.<br>ไม่มีรายการในหมวดนี้</p></div>';
+    return;
+  }
+  list.innerHTML=filtered.map(f=>{
+    const item=CHECKLIST.find(c=>c.id===f.itemId);
+    const badgeClass=f.status==='closed'?'badge-closed':f.status==='overdue'?'badge-overdue':'badge-verify';
+    const badgeText=f.status==='closed'?'✓ Closed':f.status==='overdue'?'⚠ Overdue':'⏳ To verify';
+    const thumb=f.photo
+      ?`<img class="task-thumb" src="${f.photo}" alt="${f.id}">`
+      :`<div class="task-thumb-placeholder"><i class="fas fa-image"></i></div>`;
+    return `<div class="task-card" onclick="openDetail('${f.id}')">
+      ${thumb}
+      <div class="task-body">
+        <div class="task-id">${f.id}</div>
+        <div class="task-title">${f.title}</div>
+        ${f.titleTh?`<div class="task-title-th">${f.titleTh}</div>`:''}
+        <div class="task-meta">
+          <span class="badge ${badgeClass}">${badgeText}</span>
+          ${item?`<span class="chip item-ref">Item #${item.id}</span>`:''}
+          <span class="chip"><i class="fas fa-user"></i> Unassigned</span>
+          ${f.due?`<span class="chip"><i class="fas fa-calendar"></i> ${f.due}</span>`:'<span class="chip"><i class="fas fa-calendar"></i> No due date</span>'}
+        </div>
+      </div>
+      <i class="fas fa-chevron-right task-arrow"></i>
+    </div>`;
+  }).join('');
+}
+
+function openDetail(id){
+  const f=findings.find(x=>x.id===id);
+  if(!f)return;
+  const item=CHECKLIST.find(c=>c.id===f.itemId);
+  document.getElementById('detail-title').textContent=`${f.id} — ${f.title}`;
+  document.getElementById('detail-body').innerHTML=`
+    ${f.photo?`<img src="${f.photo}" style="width:100%;border-radius:8px;margin-bottom:14px;max-height:200px;object-fit:cover;">`:'' }
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div><div style="font-size:.6rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;margin-bottom:3px;">Status</div>
+        <span class="badge ${f.status==='closed'?'badge-closed':f.status==='overdue'?'badge-overdue':'badge-verify'}">${f.status==='closed'?'✓ Closed':f.status==='overdue'?'⚠ Overdue':'⏳ To verify'}</span></div>
+      <div><div style="font-size:.6rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;margin-bottom:3px;">Checklist Item</div>
+        <span class="chip item-ref">${item?`#${item.id} — ${item.pts}pt`:'N/A'}</span></div>
+    </div>
+    ${item?`<div style="background:var(--blue-light);border-radius:7px;padding:10px 12px;margin-bottom:12px;border-left:3px solid var(--blue);">
+      <div style="font-size:.62rem;font-weight:700;color:var(--blue);margin-bottom:3px;">Checklist Criterion / เกณฑ์</div>
+      <div style="font-size:.72rem;color:var(--gray-700);">${item.text}</div>
+      <div style="font-size:.65rem;color:var(--gray-500);margin-top:2px;">${item.th}</div>
+    </div>`:''}
+    ${f.detail?`<div style="margin-bottom:10px;"><div style="font-size:.62rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;margin-bottom:3px;">Finding / ข้อตรวจพบ</div><div style="font-size:.75rem;color:var(--gray-700);">${f.detail}</div></div>`:''}
+    ${f.action?`<div><div style="font-size:.62rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;margin-bottom:3px;">Corrective Action / วิธีแก้ไข</div><div style="font-size:.75rem;color:var(--gray-700);">${f.action}</div></div>`:''}
+  `;
+  document.getElementById('detail-delete-btn').onclick=()=>deleteFinding(id);
+  document.getElementById('detail-close-btn').onclick=()=>closeFinding(id);
+  document.getElementById('detail-close-btn').style.display=f.status==='closed'?'none':'';
+  openModal('modal-detail');
+}
+
+function deleteFinding(id){
+  if(!confirm('Delete this finding? / ลบรายการนี้?'))return;
+  findings=findings.filter(f=>f.id!==id);
+  localStorage.setItem('kd-findings',JSON.stringify(findings));
+  closeModal('modal-detail');
+  renderTasks();
+  updateMetrics();
+  showToast('Finding deleted / ลบแล้ว');
+}
+
+function closeFinding(id){
+  const f=findings.find(x=>x.id===id);
+  if(f){f.status='closed';localStorage.setItem('kd-findings',JSON.stringify(findings));}
+  closeModal('modal-detail');
+  renderTasks();
+  updateMetrics();
+  showToast('Marked as closed / ปิดรายการแล้ว ✓','success');
+}
+
+function filterTasks(filter,el){
+  currentFilter=filter;
+  document.querySelectorAll('.filter-tabs .tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderTasks();
+}
+
+function updateMetrics(){
+  const open=findings.filter(f=>f.status==='verify').length;
+  const closed=findings.filter(f=>f.status==='closed').length;
+  const overdue=findings.filter(f=>f.status==='overdue').length;
+  const {score}=getScore();
+  document.getElementById('m-open').textContent=open;
+  document.getElementById('m-closed').textContent=closed;
+  document.getElementById('m-overdue').textContent=overdue;
+  document.getElementById('m-score').textContent=score;
+  document.getElementById('nav-badge').textContent=open;
+  document.getElementById('tab-open').textContent=open;
+  document.getElementById('tab-all').textContent=findings.length;
+  document.getElementById('tab-closed').textContent=closed;
+  document.getElementById('tab-overdue').textContent=overdue;
+}
+
+// ─── REPORT ───
+function updateReport(){
+  const {score,deducted,checked}=getScore();
+  document.getElementById('rpt-score').textContent=score;
+  document.getElementById('rpt-bar').style.width=(score/95*100)+'%';
+  document.getElementById('rpt-checked').textContent=`${checked} / 43`;
+  const rating=score>=90?'✅ Excellent':score>=80?'🟡 Satisfactory':score>=70?'🟠 Needs Improvement':'🔴 Unsatisfactory';
+  document.getElementById('rpt-rating').textContent=rating;
+
+  // Findings table
+  const fb=document.getElementById('rpt-findings-body');
+  if(findings.length===0){
+    fb.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--gray-400);padding:16px;">No findings / ยังไม่มีรายการ</td></tr>';
+  } else {
+    fb.innerHTML=findings.map(f=>{
+      const item=CHECKLIST.find(c=>c.id===f.itemId);
+      const badgeClass=f.status==='closed'?'badge-closed':f.status==='overdue'?'badge-overdue':'badge-verify';
+      const badgeText=f.status==='closed'?'Closed':f.status==='overdue'?'Overdue':'To verify';
+      return `<tr>
+        <td><strong>${f.id}</strong></td>
+        <td>${f.title}${f.titleTh?`<br><span style="font-size:.62rem;color:var(--gray-400);">${f.titleTh}</span>`:''}</td>
+        <td>${item?`#${item.id}`:'—'}</td>
+        <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+      </tr>`;
+    }).join('');
+  }
+  document.getElementById('rpt-finding-count').textContent=`${findings.length} finding${findings.length!==1?'s':''}`;
+
+  // Deductions table
+  const db=document.getElementById('rpt-deductions-body');
+  const deducted_items=CHECKLIST.filter(item=>checklistState[item.id]===true);
+  if(deducted_items.length===0){
+    db.innerHTML='<tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:16px;">No deductions / ไม่มีการหักคะแนน</td></tr>';
+  } else {
+    db.innerHTML=deducted_items.map(item=>`<tr>
+      <td><span class="chip item-ref">#${item.id}</span></td>
+      <td>${item.text.substring(0,60)}...<br><span style="font-size:.62rem;color:var(--gray-400);">${item.th.substring(0,50)}...</span></td>
+      <td><span style="color:var(--red);font-weight:700;">−${item.pts} pt${item.pts>1?'s':''}</span></td>
+    </tr>`).join('');
+  }
+}
+
+// ─── EXPORT ───
+function exportCSV(){
+  if(findings.length===0){showToast('No findings to export / ไม่มีรายการ','error');return;}
+  const headers=['ID','Title','Title (TH)','Item #','Status','Due Date','Detail','Action','Created'];
+  const rows=findings.map(f=>[f.id,f.title,f.titleTh||'',f.itemId||'',f.status,f.due||'',f.detail||'',f.action||'',f.createdAt]);
+  const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`kitchen-audit-${new Date().toISOString().slice(0,10)}.csv`;a.click();
+  showToast('CSV exported! / ส่งออกแล้ว ✓','success');
+}
+
+function printReport(){
+  updateReport();
+  window.print();
+}
+
+// ─── MODAL ───
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});
+});
+
+// ─── TOAST ───
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+(type||'');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ─── START ───
+init();
+</script>
+</body>
+</html>
